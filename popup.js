@@ -6,6 +6,17 @@ const hlToggleBtn = document.getElementById("hlToggleBtn");
 const modeStrict = document.getElementById("modeStrict");
 const modeBalanced = document.getElementById("modeBalanced");
 const modeDesc = document.getElementById("modeDesc");
+const versionEl = document.getElementById("versionEl");
+
+// Show the manifest version at the bottom of the popup.
+// This is read directly from the extension manifest, so it always
+// matches what Chrome loaded (even if you forget to bump it).
+try {
+  const v = chrome.runtime.getManifest().version;
+  versionEl.textContent = "Version " + v;
+} catch (e) {
+  versionEl.textContent = "Version unknown";
+}
 
 // --- YouTube filter toggle ---
 chrome.storage.local.get({ enabled: false, filterMode: "strict" }, (data) => {
