@@ -11,9 +11,9 @@ chrome.storage.onChanged.addListener((changes, area) => {
 });
 
 let popupEl = null;
+let lastHighlightRange = null;
 
 document.addEventListener("mouseup", (e) => {
-  // Ignore clicks inside our own popup
   if (popupEl && popupEl.contains(e.target)) return;
 
   setTimeout(() => {
@@ -25,9 +25,24 @@ document.addEventListener("mouseup", (e) => {
       return;
     }
 
-    const range = sel.getRangeAt(0);
+    const range = sel.getRangeAt(0).cloneRange();
+
+    // Auto-highlight immediately with the last used color
+    applyHighlight(range, lastColor);
+
+    // Keep a reference so the color picker can re-highlight
+    lastHighlightRange = range;
+
+    // Clear selection so the new highlight is visible
+    sel.removeAllRanges();
+
+    // Show the color picker near the highlighted area
     const rect = range.getBoundingClientRect();
-    showPopup(rect, sel, range);
+    if (rect && (rect.width || rect.height)) {
+      showPopup(rect);
+    } else {
+      removePopup();
+    }
   }, 10);
 });
 
@@ -44,7 +59,7 @@ function removePopup() {
   }
 }
 
-function showPopup(rect, selection, range) {
+function showPopup(rect) {
   removePopup();
 
   popupEl = document.createElement("div");
@@ -59,7 +74,7 @@ function showPopup(rect, selection, range) {
     if (color === lastColor) {
       sw.style.borderColor = "#1a73e8";
     }
-    sw.title = color;
+    sw.title = "Highlight with " + color;
     sw.addEventListener("mousedown", (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
@@ -67,18 +82,21 @@ function showPopup(rect, selection, range) {
     sw.addEventListener("click", (ev) => {
       ev.preventDefault();
       ev.stopPropagation();
-      applyHighlight(range, color);
+
+      if (lastHighlightRange) {
+        // Remove the previous auto-highlight, then re-apply with the new color
+        rehighlightWith(lastHighlightRange, color);
+      }
+
       chrome.storage.local.set({ highlightColor: color });
       lastColor = color;
       removePopup();
-      selection.removeAllRanges();
     });
     popupEl.appendChild(sw);
   });
 
   document.body.appendChild(popupEl);
 
-  // Position above the selection
   const top = window.scrollY + rect.top - popupEl.offsetHeight - 8;
   const left = window.scrollX + rect.left + rect.width / 2 - popupEl.offsetWidth / 2;
   popupEl.style.top = Math.max(window.scrollY + 4, top) + "px";
@@ -92,8 +110,33 @@ function applyHighlight(range, color) {
     span.className = "gf-highlighted";
     range.surroundContents(span);
   } catch (err) {
-    // surroundContents fails if the range spans multiple elements.
-    // Fallback: use execCommand (deprecated but still works for simple cases)
     document.execCommand("hiliteColor", false, color);
+  }
+}
+
+function rehighlightWith(range, color) {
+  // Find the span(s) created by the auto-highlight and update their color.
+  // Since the range was cloned before highlighting, we search the common ancestor.
+  const container = range.commonAncestorContainer;
+  const root = container.nodeType === 1 ? container : container.parentElement;
+  if (!root) return;
+
+  // Update any gf-highlighted spans that overlap the range
+  const spans = root.querySelectorAll("span.gf-highlighted");
+  let updated = false;
+  spans.forEach((span) => {
+    if (range.intersectsNode(span)) {
+      span.style.backgroundColor = color;
+      updated = true;
+    }
+  });
+
+  // If nothing was updated (e.g. execCommand fallback), try execCommand again
+  if (!updated) {
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand("hiliteColor", false, color);
+    sel.removeAllRanges();
   }
 }

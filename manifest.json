@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
   "name": "German Learn Helper",
-  "version": "1.0",
-  "description": "Filter non-German YouTube videos and highlight selected text with 3 colors.",
-  "permissions": ["storage", "contextMenus"],
+  "version": "1.1",
+  "description": "Filter non-German YouTube videos and auto-highlight selected text with the last used color.",
+  "permissions": ["storage"],
   "host_permissions": ["https://www.youtube.com/*", "<all_urls>"],
   "action": {
     "default_popup": "popup.html",
