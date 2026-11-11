@@ -1,6 +1,8 @@
 const statusEl = document.getElementById("status");
 const toggleBtn = document.getElementById("toggleBtn");
 const swatches = document.querySelectorAll(".swatch");
+const hlStatusEl = document.getElementById("hlStatus");
+const hlToggleBtn = document.getElementById("hlToggleBtn");
 
 // --- YouTube filter toggle ---
 chrome.storage.local.get({ enabled: false }, (data) => {
@@ -28,6 +30,30 @@ function updateUI(enabled) {
   statusEl.textContent = enabled ? "Filter: ON" : "Filter: OFF";
   statusEl.className = enabled ? "status on" : "status off";
   toggleBtn.textContent = enabled ? "Turn OFF" : "Turn ON";
+}
+
+// --- Highlighter on/off toggle ---
+chrome.storage.local.get({ highlightEnabled: true }, (data) => {
+  updateHlUI(data.highlightEnabled);
+});
+
+hlToggleBtn.addEventListener("click", () => {
+  chrome.storage.local.get({ highlightEnabled: true }, (data) => {
+    const newState = !data.highlightEnabled;
+    chrome.storage.local.set({ highlightEnabled: newState }, () => {
+      updateHlUI(newState);
+    });
+  });
+});
+
+function updateHlUI(enabled) {
+  hlStatusEl.textContent = enabled ? "Highlighter: ON" : "Highlighter: OFF";
+  hlStatusEl.className = enabled ? "status on" : "status off";
+  hlToggleBtn.textContent = enabled ? "Turn OFF" : "Turn ON";
+  swatches.forEach((sw) => {
+    sw.style.opacity = enabled ? "1" : "0.4";
+    sw.style.pointerEvents = enabled ? "auto" : "none";
+  });
 }
 
 // --- Highlight color selection ---

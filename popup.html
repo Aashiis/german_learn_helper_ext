@@ -24,6 +24,7 @@
     .swatch {
       width: 32px; height: 32px; border-radius: 50%;
       border: 2px solid #ccc; cursor: pointer;
+      transition: opacity 0.15s;
     }
     .swatch.active { border-color: #1a73e8; }
     .hint { font-size: 11px; color: #666; margin-top: 8px; }
@@ -36,7 +37,10 @@
 
   <hr />
 
-  <h2>Highlight Color</h2>
+  <h2>Text Highlighter</h2>
+  <div class="status" id="hlStatus">Loading...</div>
+  <button id="hlToggleBtn">Toggle</button>
+
   <div class="colors">
     <div class="swatch" data-color="#ffff00" style="background:#ffff00" title="Yellow"></div>
     <div class="swatch" data-color="#a0e7a0" style="background:#a0e7a0" title="Green"></div>

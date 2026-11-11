@@ -1,12 +1,24 @@
 let lastColor = "#ffff00";
+let highlightEnabled = true;
 
-chrome.storage.local.get({ highlightColor: "#ffff00" }, (data) => {
-  lastColor = data.highlightColor;
-});
+chrome.storage.local.get(
+  { highlightColor: "#ffff00", highlightEnabled: true },
+  (data) => {
+    lastColor = data.highlightColor;
+    highlightEnabled = data.highlightEnabled;
+  }
+);
 
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && changes.highlightColor) {
+  if (area !== "local") return;
+  if (changes.highlightColor) {
     lastColor = changes.highlightColor.newValue;
+  }
+  if (changes.highlightEnabled) {
+    highlightEnabled = changes.highlightEnabled.newValue;
+    if (!highlightEnabled) {
+      removePopup();
+    }
   }
 });
 
@@ -14,9 +26,12 @@ let popupEl = null;
 let lastHighlightRange = null;
 
 document.addEventListener("mouseup", (e) => {
+  if (!highlightEnabled) return;
   if (popupEl && popupEl.contains(e.target)) return;
 
   setTimeout(() => {
+    if (!highlightEnabled) return;
+
     const sel = window.getSelection();
     const text = sel ? sel.toString().trim() : "";
 
@@ -27,16 +42,11 @@ document.addEventListener("mouseup", (e) => {
 
     const range = sel.getRangeAt(0).cloneRange();
 
-    // Auto-highlight immediately with the last used color
     applyHighlight(range, lastColor);
-
-    // Keep a reference so the color picker can re-highlight
     lastHighlightRange = range;
 
-    // Clear selection so the new highlight is visible
     sel.removeAllRanges();
 
-    // Show the color picker near the highlighted area
     const rect = range.getBoundingClientRect();
     if (rect && (rect.width || rect.height)) {
       showPopup(rect);
@@ -84,7 +94,6 @@ function showPopup(rect) {
       ev.stopPropagation();
 
       if (lastHighlightRange) {
-        // Remove the previous auto-highlight, then re-apply with the new color
         rehighlightWith(lastHighlightRange, color);
       }
 
@@ -115,13 +124,10 @@ function applyHighlight(range, color) {
 }
 
 function rehighlightWith(range, color) {
-  // Find the span(s) created by the auto-highlight and update their color.
-  // Since the range was cloned before highlighting, we search the common ancestor.
   const container = range.commonAncestorContainer;
   const root = container.nodeType === 1 ? container : container.parentElement;
   if (!root) return;
 
-  // Update any gf-highlighted spans that overlap the range
   const spans = root.querySelectorAll("span.gf-highlighted");
   let updated = false;
   spans.forEach((span) => {
@@ -131,7 +137,6 @@ function rehighlightWith(range, color) {
     }
   });
 
-  // If nothing was updated (e.g. execCommand fallback), try execCommand again
   if (!updated) {
     const sel = window.getSelection();
     sel.removeAllRanges();
