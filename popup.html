@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 240px; padding: 16px; font-family: system-ui, sans-serif; }
+    h2 { font-size: 14px; margin: 0 0 8px; }
+    .status { margin-bottom: 12px; font-weight: bold; }
+    .on { color: #1a7f37; }
+    .off { color: #cf222e; }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      background: #1a73e8;
+      color: white;
+      margin-bottom: 12px;
+    }
+    button:hover { background: #1557b0; }
+    hr { border: none; border-top: 1px solid #ddd; margin: 12px 0; }
+    .colors { display: flex; gap: 8px; justify-content: center; }
+    .swatch {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid #ccc; cursor: pointer;
+    }
+    .swatch.active { border-color: #1a73e8; }
+    .hint { font-size: 11px; color: #666; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h2>YouTube German Filter</h2>
+  <div class="status" id="status">Loading...</div>
+  <button id="toggleBtn">Toggle</button>
+
+  <hr />
+
+  <h2>Highlight Color</h2>
+  <div class="colors">
+    <div class="swatch" data-color="#ffff00" style="background:#ffff00" title="Yellow"></div>
+    <div class="swatch" data-color="#a0e7a0" style="background:#a0e7a0" title="Green"></div>
+    <div class="swatch" data-color="#a0c4ff" style="background:#a0c4ff" title="Blue"></div>
+  </div>
+  <div class="hint">Select text on any page to highlight it.</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

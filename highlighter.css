@@ -1,0 +1,26 @@
+#gf-highlight-popup {
+  position: absolute;
+  z-index: 2147483647;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+  font-family: system-ui, sans-serif;
+}
+
+#gf-highlight-popup .gf-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+#gf-highlight-popup .gf-swatch:hover {
+  transform: scale(1.15);
+  border-color: #1a73e8;
+}

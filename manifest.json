@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "German Learn Helper",
+  "version": "1.0",
+  "description": "Filter non-German YouTube videos and highlight selected text with 3 colors.",
+  "permissions": ["storage", "contextMenus"],
+  "host_permissions": ["https://www.youtube.com/*", "<all_urls>"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "German Learn Helper"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["youtube-filter.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["highlighter.js"],
+      "css": ["highlighter.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
