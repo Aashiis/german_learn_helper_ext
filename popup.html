@@ -2,9 +2,9 @@
 <html>
 <head>
   <style>
-    body { width: 240px; padding: 16px; font-family: system-ui, sans-serif; }
+    body { width: 260px; padding: 16px; font-family: system-ui, sans-serif; }
     h2 { font-size: 14px; margin: 0 0 8px; }
-    .status { margin-bottom: 12px; font-weight: bold; }
+    .status { margin-bottom: 8px; font-weight: bold; }
     .on { color: #1a7f37; }
     .off { color: #cf222e; }
     button {
@@ -28,12 +28,37 @@
     }
     .swatch.active { border-color: #1a73e8; }
     .hint { font-size: 11px; color: #666; margin-top: 8px; }
+    .mode-group { display: flex; gap: 8px; margin-bottom: 8px; }
+    .mode-btn {
+      flex: 1;
+      padding: 8px;
+      font-size: 13px;
+      border: 2px solid #ccc;
+      border-radius: 6px;
+      background: #fff;
+      color: #333;
+      cursor: pointer;
+      margin-bottom: 0;
+    }
+    .mode-btn.active {
+      border-color: #1a73e8;
+      background: #e8f0fe;
+      color: #1a73e8;
+      font-weight: bold;
+    }
+    .mode-desc { font-size: 11px; color: #666; margin-bottom: 12px; min-height: 28px; }
   </style>
 </head>
 <body>
   <h2>YouTube German Filter</h2>
   <div class="status" id="status">Loading...</div>
   <button id="toggleBtn">Toggle</button>
+
+  <div class="mode-group">
+    <button class="mode-btn" id="modeStrict" data-mode="strict">Strict</button>
+    <button class="mode-btn" id="modeBalanced" data-mode="balanced">Balanced</button>
+  </div>
+  <div class="mode-desc" id="modeDesc"></div>
 
   <hr />
 

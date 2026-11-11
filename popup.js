@@ -3,10 +3,14 @@ const toggleBtn = document.getElementById("toggleBtn");
 const swatches = document.querySelectorAll(".swatch");
 const hlStatusEl = document.getElementById("hlStatus");
 const hlToggleBtn = document.getElementById("hlToggleBtn");
+const modeStrict = document.getElementById("modeStrict");
+const modeBalanced = document.getElementById("modeBalanced");
+const modeDesc = document.getElementById("modeDesc");
 
 // --- YouTube filter toggle ---
-chrome.storage.local.get({ enabled: false }, (data) => {
+chrome.storage.local.get({ enabled: false, filterMode: "strict" }, (data) => {
   updateUI(data.enabled);
+  updateModeUI(data.filterMode);
 });
 
 toggleBtn.addEventListener("click", () => {
@@ -14,14 +18,7 @@ toggleBtn.addEventListener("click", () => {
     const newState = !data.enabled;
     chrome.storage.local.set({ enabled: newState }, () => {
       updateUI(newState);
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs[0]?.id) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            action: "setEnabled",
-            enabled: newState
-          }).catch(() => {});
-        }
-      });
+      notifyContentScript({ action: "setEnabled", enabled: newState });
     });
   });
 });
@@ -30,6 +27,33 @@ function updateUI(enabled) {
   statusEl.textContent = enabled ? "Filter: ON" : "Filter: OFF";
   statusEl.className = enabled ? "status on" : "status off";
   toggleBtn.textContent = enabled ? "Turn OFF" : "Turn ON";
+}
+
+// --- Filter mode selection ---
+modeStrict.addEventListener("click", () => setMode("strict"));
+modeBalanced.addEventListener("click", () => setMode("balanced"));
+
+function setMode(mode) {
+  chrome.storage.local.set({ filterMode: mode }, () => {
+    updateModeUI(mode);
+    notifyContentScript({ action: "setMode", mode: mode });
+  });
+}
+
+function updateModeUI(mode) {
+  modeStrict.classList.toggle("active", mode === "strict");
+  modeBalanced.classList.toggle("active", mode === "balanced");
+  modeDesc.textContent = mode === "strict"
+    ? "Strict: Only German videos. Shorts, music and mixes are hidden."
+    : "Balanced: German videos plus Shorts, music and mix playlists.";
+}
+
+function notifyContentScript(msg) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs[0]?.id) {
+      chrome.tabs.sendMessage(tabs[0].id, msg).catch(() => {});
+    }
+  });
 }
 
 // --- Highlighter on/off toggle ---
